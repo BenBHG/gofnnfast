@@ -1,4 +1,4 @@
-package fnnfast
+package gofnnfast
 
 // #include "fnnfast/fnnfast.h"
 // #include "fnnfast/fnnfast.c"
