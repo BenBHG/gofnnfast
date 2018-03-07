@@ -1,0 +1,3 @@
+[submodule "fnnfast"]
+	path = fnnfast
+	url = https://github.com/BenBHG/fnnfast.git
