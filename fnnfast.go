@@ -2,9 +2,17 @@ package gofnnfast
 
 // #include "fnnfast/fnnfast.h"
 // #include "fnnfast/fnnfast.c"
-// typedef double* pDouble;
-// neuron gofnnfast_msd_helper(struct fnnfast_data *data, void *input_set, void *output_set, size_t num) {
-//   return fnnfast_mean_squared_deviation(data, (neuron**)input_set, (neuron**)output_set, num);
+// neuron gofnnfast_msd_helper(struct fnnfast_data *data, neuron *input_set, neuron *output_set, size_t num) {
+// 	neuron **is = malloc(num * sizeof(neuron*));
+// 	neuron **os = malloc(num * sizeof(neuron*));
+// 	for (size_t i = 0; i < num; ++i) {
+// 		is[i] = &input_set[i * data->num_input];
+// 		os[i] = &output_set[i * data->num_input];
+// 	}
+//  neuron msd = fnnfast_mean_squared_deviation(data, is, os, num);
+// 	free(is);
+// 	free(os);
+// 	return msd;
 // }
 import "C"
 import "unsafe"
@@ -64,25 +72,15 @@ func (ffn *FnnfastData) FeedForward(input []FnnfastValue) []FnnfastValue {
 
 func (ffn *FnnfastData) MeanSquaredDeviation(inputSet, outputSet [][]FnnfastValue) FnnfastValue {
 	ns := (C.ulonglong)(len(inputSet))
-	_inputSet := make([]C.pDouble, len(inputSet))
-	_outputSet := make([]C.pDouble, len(outputSet))
-	for i := range inputSet {
-		_inputSet[i] = (C.pDouble)(C.malloc(C.size_t(len(inputSet[i]))))
-		C.memcpy(unsafe.Pointer(_inputSet[i]), unsafe.Pointer(&inputSet[i]), ns)
+	is := make([]FnnfastValue, 0)
+	for _, input := range inputSet {
+		is = append(is, input...)
 	}
-	for i := range outputSet {
-		_outputSet[i] = (C.pDouble)(C.malloc(C.size_t(len(outputSet[i]))))
-		C.memcpy(unsafe.Pointer(_outputSet[i]), unsafe.Pointer(&outputSet[i]), ns)
+	os := make([]FnnfastValue, 0)
+	for _, output := range outputSet {
+		os = append(os, output...)
 	}
-	is := unsafe.Pointer(_inputSet[0])
-	os := unsafe.Pointer(_outputSet[0])
-	msd := C.gofnnfast_msd_helper(ffn.ffd(), is, os, ns)
-	for i := range _inputSet {
-		C.free(unsafe.Pointer(_inputSet[i]))
-	}
-	for i := range _outputSet {
-		C.free(unsafe.Pointer(_outputSet[i]))
-	}
+	msd := C.gofnnfast_msd_helper(ffn.ffd(), (*C.double)(unsafe.Pointer(&is[0])), (*C.double)(unsafe.Pointer(&os[0])), ns)
 	return (FnnfastValue)(msd)
 }
 
