@@ -60,8 +60,16 @@ func (ffn *FnnfastData) FeedForward(input []FnnfastValue) []FnnfastValue {
 
 func (ffn *FnnfastData) MeanSquaredDeviation(inputSet, outputSet [][]FnnfastValue) FnnfastValue {
 	ns := (C.ulonglong)(len(inputSet))
-	is := (**C.double)(unsafe.Pointer((&inputSet[0])))
-	os := (**C.double)(unsafe.Pointer((&outputSet[0])))
+	_inputSet := make([]*C.double, len(inputSet))
+	_outputSet := make([]*C.double, len(outputSet))
+	for i := range inputSet {
+		_inputSet[i] = (*C.double)(unsafe.Pointer(&inputSet[i]))
+	}
+	for i := range outputSet {
+		_outputSet[i] = (*C.double)(unsafe.Pointer(&outputSet[i]))
+	}
+	is := (**C.double)(unsafe.Pointer((_inputSet[0])))
+	os := (**C.double)(unsafe.Pointer((_outputSet[0])))
 	msd := C.fnnfast_mean_squared_deviation(ffn.ffd(), is, os, ns)
 	return (FnnfastValue)(msd)
 }
