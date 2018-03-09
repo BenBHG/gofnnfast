@@ -60,24 +60,24 @@ func (ffn *FnnfastData) FeedForward(input []FnnfastValue) []FnnfastValue {
 
 func (ffn *FnnfastData) MeanSquaredDeviation(inputSet, outputSet [][]FnnfastValue) FnnfastValue {
 	ns := (C.ulonglong)(len(inputSet))
-	_inputSet := make([]*C.double, len(inputSet))
-	_outputSet := make([]*C.double, len(outputSet))
+	_inputSet := make([]uintptr, len(inputSet))
+	_outputSet := make([]uintptr, len(outputSet))
 	for i := range inputSet {
-		_inputSet[i] = (*C.double)(unsafe.Pointer(C.malloc(C.size_t(len(inputSet[i])))))
+		_inputSet[i] = (uintptr)(unsafe.Pointer(C.malloc(C.size_t(len(inputSet[i])))))
 		C.memcpy(unsafe.Pointer(_inputSet[i]), unsafe.Pointer(&inputSet[i]), ns)
 	}
 	for i := range outputSet {
-		_outputSet[i] = (*C.double)(unsafe.Pointer(C.malloc(C.size_t(len(outputSet[i])))))
+		_outputSet[i] = (uintptr)(unsafe.Pointer(C.malloc(C.size_t(len(outputSet[i])))))
 		C.memcpy(unsafe.Pointer(_outputSet[i]), unsafe.Pointer(&outputSet[i]), ns)
 	}
-	is := (**C.double)(unsafe.Pointer(&_inputSet[0]))
-	os := (**C.double)(unsafe.Pointer(&_outputSet[0]))
+	is := (**C.double)(unsafe.Pointer(_inputSet[0]))
+	os := (**C.double)(unsafe.Pointer(_outputSet[0]))
 	msd := C.fnnfast_mean_squared_deviation(ffn.ffd(), is, os, ns)
 	for i := range _inputSet {
-		C.free(unsafe.Pointer(&_inputSet[i]))
+		C.free(unsafe.Pointer(_inputSet[i]))
 	}
 	for i := range _outputSet {
-		C.free(unsafe.Pointer(&_outputSet[i]))
+		C.free(unsafe.Pointer(_outputSet[i]))
 	}
 	return (FnnfastValue)(msd)
 }
