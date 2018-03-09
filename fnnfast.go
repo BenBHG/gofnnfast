@@ -70,8 +70,8 @@ func (ffn *FnnfastData) MeanSquaredDeviation(inputSet, outputSet [][]FnnfastValu
 		_outputSet[i] = (*C.double)(unsafe.Pointer(C.malloc(C.size_t(len(outputSet[i])))))
 		C.memcpy(unsafe.Pointer(_outputSet[i]), unsafe.Pointer(&outputSet[i]), ns)
 	}
-	is := (**C.double)(&_inputSet[0])
-	os := (**C.double)(&_inputSet[0])
+	is := (**C.double)(unsafe.Pointer(&_inputSet[0]))
+	os := (**C.double)(unsafe.Pointer(&_outputSet[0]))
 	msd := C.fnnfast_mean_squared_deviation(ffn.ffd(), is, os, ns)
 	for i := range _inputSet {
 		C.free(unsafe.Pointer(&_inputSet[i]))
