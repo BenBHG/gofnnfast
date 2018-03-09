@@ -2,6 +2,10 @@ package gofnnfast
 
 // #include "fnnfast/fnnfast.h"
 // #include "fnnfast/fnnfast.c"
+// typedef double* pDouble;
+// neuron gofnnfast_msd_helper(struct fnnfast_data *data, void *input_set, void *output_set, size_t num) {
+//   return fnnfast_mean_squared_deviation(data, (neuron**)input_set, (neuron**)output_set, num);
+// }
 import "C"
 import "unsafe"
 
@@ -60,19 +64,19 @@ func (ffn *FnnfastData) FeedForward(input []FnnfastValue) []FnnfastValue {
 
 func (ffn *FnnfastData) MeanSquaredDeviation(inputSet, outputSet [][]FnnfastValue) FnnfastValue {
 	ns := (C.ulonglong)(len(inputSet))
-	_inputSet := make([]uintptr, len(inputSet))
-	_outputSet := make([]uintptr, len(outputSet))
+	_inputSet := make([]C.pDouble, len(inputSet))
+	_outputSet := make([]C.pDouble, len(outputSet))
 	for i := range inputSet {
-		_inputSet[i] = (uintptr)(unsafe.Pointer(C.malloc(C.size_t(len(inputSet[i])))))
+		_inputSet[i] = (C.pDouble)(C.malloc(C.size_t(len(inputSet[i]))))
 		C.memcpy(unsafe.Pointer(_inputSet[i]), unsafe.Pointer(&inputSet[i]), ns)
 	}
 	for i := range outputSet {
-		_outputSet[i] = (uintptr)(unsafe.Pointer(C.malloc(C.size_t(len(outputSet[i])))))
+		_outputSet[i] = (C.pDouble)(C.malloc(C.size_t(len(outputSet[i]))))
 		C.memcpy(unsafe.Pointer(_outputSet[i]), unsafe.Pointer(&outputSet[i]), ns)
 	}
-	is := (**C.double)(unsafe.Pointer(_inputSet[0]))
-	os := (**C.double)(unsafe.Pointer(_outputSet[0]))
-	msd := C.fnnfast_mean_squared_deviation(ffn.ffd(), is, os, ns)
+	is := unsafe.Pointer(_inputSet[0])
+	os := unsafe.Pointer(_outputSet[0])
+	msd := C.gofnnfast_msd_helper(ffn.ffd(), is, os, ns)
 	for i := range _inputSet {
 		C.free(unsafe.Pointer(_inputSet[i]))
 	}
