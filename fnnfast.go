@@ -7,7 +7,7 @@ package gofnnfast
 // 	neuron **os = malloc(num * sizeof(neuron*));
 // 	for (size_t i = 0; i < num; ++i) {
 // 		is[i] = &input_set[i * data->num_input];
-// 		os[i] = &output_set[i * data->num_input];
+// 		os[i] = &output_set[i * data->num_output];
 // 	}
 //  neuron msd = fnnfast_mean_squared_deviation(data, is, os, num);
 // 	free(is);
