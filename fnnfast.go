@@ -52,6 +52,10 @@ func FnnfastDelete(ffn *FnnfastData) {
 	C.fnnfast_delete(ffn.ffd())
 }
 
+func (ffn *FnnfastData) FixPointers() {
+	C.fnnfast_fix_pointers(ffn.ffd())
+}
+
 func (ffn *FnnfastData) Size() uint {
 	return (uint)(C.fnnfast_size(ffn.ffd()))
 }
