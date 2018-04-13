@@ -1,5 +1,6 @@
 package gofnnfast
 
+// #cgo LDFLAGS: -lm
 // #include "fnnfast/fnnfast.h"
 // #include "fnnfast/fnnfast.c"
 // neuron gofnnfast_msd_helper(struct fnnfast_data *data, neuron *input_set, neuron *output_set, size_t num) {
@@ -41,9 +42,9 @@ func (ffn *FnnfastData) ffd() *C.struct_fnnfast_data {
 }
 
 func FnnfastNew(inputs, hidden, outputs uint) *FnnfastData {
-	ni := (C.ulonglong)(inputs)
-	nh := (C.ulonglong)(hidden)
-	no := (C.ulonglong)(outputs)
+	ni := (C.size_t)(inputs)
+	nh := (C.size_t)(hidden)
+	no := (C.size_t)(outputs)
 	ffd := C.fnnfast_new(ni, nh, no)
 	return ffd.ffn()
 }
@@ -75,7 +76,7 @@ func (ffn *FnnfastData) FeedForward(input []FnnfastValue) []FnnfastValue {
 }
 
 func (ffn *FnnfastData) MeanSquaredDeviation(inputSet, outputSet [][]FnnfastValue) FnnfastValue {
-	ns := (C.ulonglong)(len(inputSet))
+	ns := (C.size_t)(len(inputSet))
 	is := make([]FnnfastValue, 0)
 	for _, input := range inputSet {
 		is = append(is, input...)
